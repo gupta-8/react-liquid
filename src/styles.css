@@ -1,0 +1,421 @@
+/* =========================================================
+   React Liquid — Apple-style Liquid Glass
+   - Softer, cleaner, more "material" than neon glass
+   - Subtle specular, refined borders, calm shadows
+   ========================================================= */
+
+:root {
+  /* Material geometry */
+  --rl-radius: 18px;
+
+  /* Backdrop strength (overridden by component via inline vars) */
+  --rl-blur: 20px;
+  --rl-saturation: 1.08;
+  --rl-alpha: 0.55;
+
+  /* Text */
+  --rl-text: rgba(18, 20, 26, 0.92);
+  --rl-text-dim: rgba(18, 20, 26, 0.64);
+
+  /* Borders (Apple-ish: crisp inner + soft outer) */
+  --rl-border: rgba(255, 255, 255, 0.55);
+  --rl-border-outer: rgba(0, 0, 0, 0.06);
+
+  /* Shadows (subtle, layered) */
+  --rl-shadow-1: 0 1px 0 rgba(255, 255, 255, 0.55) inset;
+  --rl-shadow-2: 0 12px 30px rgba(0, 0, 0, 0.10);
+  --rl-shadow-3: 0 2px 10px rgba(0, 0, 0, 0.06);
+
+  /* Base surface */
+  --rl-surface: rgba(255, 255, 255, var(--rl-alpha));
+  --rl-surface-2: rgba(255, 255, 255, 0.28);
+
+  /* Accent (muted iOS blue) */
+  --rl-accent: rgba(10, 132, 255, 0.95);
+  --rl-danger: rgba(255, 69, 58, 0.95);
+
+  /* Background helpers */
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --rl-text: rgba(255, 255, 255, 0.92);
+    --rl-text-dim: rgba(255, 255, 255, 0.66);
+
+    --rl-border: rgba(255, 255, 255, 0.22);
+    --rl-border-outer: rgba(0, 0, 0, 0.35);
+
+    --rl-shadow-1: 0 1px 0 rgba(255, 255, 255, 0.10) inset;
+    --rl-shadow-2: 0 18px 40px rgba(0, 0, 0, 0.45);
+    --rl-shadow-3: 0 2px 14px rgba(0, 0, 0, 0.20);
+
+    --rl-surface: rgba(22, 24, 30, 0.48);
+    --rl-surface-2: rgba(255, 255, 255, 0.06);
+
+    --rl-accent: rgba(10, 132, 255, 0.95);
+    --rl-danger: rgba(255, 69, 58, 0.95);
+  }
+}
+
+/* ===== Base material ===== */
+.rl-glass {
+  position: relative;
+  border-radius: var(--rl-radius);
+  isolation: isolate;
+  transform: translateZ(0);
+  color: var(--rl-text);
+
+  /* Apple-ish material: calm gradients, minimal color */
+  background:
+    radial-gradient(140% 180% at 20% 0%, rgba(255, 255, 255, 0.55), transparent 55%),
+    radial-gradient(120% 140% at 80% 0%, rgba(255, 255, 255, 0.22), transparent 58%),
+    linear-gradient(180deg, var(--rl-surface), var(--rl-surface-2));
+
+  -webkit-backdrop-filter: blur(var(--rl-blur)) saturate(var(--rl-saturation));
+  backdrop-filter: blur(var(--rl-blur)) saturate(var(--rl-saturation));
+
+  box-shadow: var(--rl-shadow-2), var(--rl-shadow-3), var(--rl-shadow-1);
+}
+
+/* Tone controls */
+.rl-glass[data-tone="light"] {
+  background:
+    radial-gradient(140% 180% at 20% 0%, rgba(255, 255, 255, 0.62), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, var(--rl-alpha)), rgba(255, 255, 255, 0.26));
+}
+.rl-glass[data-tone="dark"] {
+  background:
+    radial-gradient(140% 180% at 20% 0%, rgba(255, 255, 255, 0.16), transparent 55%),
+    linear-gradient(180deg, rgba(22, 24, 30, 0.55), rgba(22, 24, 30, 0.22));
+}
+
+/* Border: soft outer + crisp inner stroke */
+.rl-glass[data-border] {
+  border: 1px solid var(--rl-border);
+  outline: 1px solid var(--rl-border-outer);
+  outline-offset: 0px;
+}
+
+/* Optional glow: very subtle, Apple-like */
+.rl-glass[data-glow]::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(130% 120% at 50% 0%, rgba(10, 132, 255, 0.14), transparent 60%);
+  filter: blur(18px);
+  opacity: 0.9;
+  z-index: -1;
+}
+
+/* Noise: extremely subtle (avoid "grainy") */
+.rl-glass[data-noise]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.08; /* lower than before */
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.30'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+/* Specular highlight: crisp but not flashy */
+.rl-glass[data-highlight]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(160% 140% at 20% 0%, rgba(255, 255, 255, 0.55), transparent 52%),
+    radial-gradient(120% 120% at 80% 10%, rgba(255, 255, 255, 0.22), transparent 62%);
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+}
+
+/* ===== Card ===== */
+.rl-card { padding: 18px; }
+.rl-card--inset { box-shadow: 0 8px 22px rgba(0,0,0,0.08), var(--rl-shadow-1); }
+
+/* ===== Button ===== */
+.rl-btn {
+  position: relative;
+  border-radius: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--rl-border);
+  outline: 1px solid var(--rl-border-outer);
+  background: transparent;
+  color: var(--rl-text);
+  cursor: pointer;
+  user-select: none;
+  transform: translateZ(0);
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.45) inset, 0 10px 22px rgba(0,0,0,0.08);
+}
+.rl-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.rl-btn__bg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+
+  background:
+    radial-gradient(140% 160% at 20% 0%, rgba(255, 255, 255, 0.60), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.12));
+
+  -webkit-backdrop-filter: blur(16px) saturate(1.06);
+  backdrop-filter: blur(16px) saturate(1.06);
+}
+
+.rl-btn__content {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.rl-btn--sm { padding: 8px 12px; border-radius: 12px; font-size: 13px; }
+.rl-btn--md { font-size: 14px; }
+.rl-btn--lg { padding: 12px 16px; border-radius: 16px; font-size: 15px; }
+
+.rl-btn:hover { filter: brightness(1.02); box-shadow: 0 1px 0 rgba(255,255,255,0.45) inset, 0 14px 28px rgba(0,0,0,0.10); }
+.rl-btn:active { transform: translateY(1px) scale(0.99); }
+
+.rl-btn--primary .rl-btn__bg {
+  background:
+    radial-gradient(140% 160% at 20% 0%, rgba(10, 132, 255, 0.34), transparent 62%),
+    linear-gradient(180deg, rgba(10, 132, 255, 0.20), rgba(255, 255, 255, 0.10));
+}
+.rl-btn--ghost .rl-btn__bg {
+  background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+}
+.rl-btn--danger .rl-btn__bg {
+  background:
+    radial-gradient(140% 160% at 20% 0%, rgba(255, 69, 58, 0.30), transparent 62%),
+    linear-gradient(180deg, rgba(255, 69, 58, 0.16), rgba(255,255,255,0.10));
+}
+
+.rl-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  border-top-color: rgba(0, 0, 0, 0.55);
+  animation: rl-spin 700ms linear infinite;
+}
+@media (prefers-color-scheme: dark) {
+  .rl-spinner {
+    border: 2px solid rgba(255, 255, 255, 0.28);
+    border-top-color: rgba(255, 255, 255, 0.85);
+  }
+}
+@keyframes rl-spin { to { transform: rotate(360deg); } }
+.rl-btn__label--loading { opacity: 0.85; }
+
+/* ===== Input ===== */
+.rl-input {
+  position: relative;
+  display: grid;
+  align-items: center;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--rl-border);
+  outline: 1px solid var(--rl-border-outer);
+  color: var(--rl-text);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.45) inset, 0 10px 22px rgba(0,0,0,0.07);
+}
+
+.rl-input__bg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(140% 160% at 20% 0%, rgba(255,255,255,0.55), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.10));
+  -webkit-backdrop-filter: blur(18px) saturate(1.06);
+  backdrop-filter: blur(18px) saturate(1.06);
+  z-index: 0;
+}
+
+.rl-input__field {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+}
+.rl-input__field::placeholder { color: var(--rl-text-dim); }
+
+.rl-input__icon {
+  position: relative;
+  z-index: 1;
+  opacity: 0.78;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Badge ===== */
+.rl-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border: 1px solid var(--rl-border);
+  outline: 1px solid var(--rl-border-outer);
+  background: rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
+  backdrop-filter: blur(12px) saturate(1.05);
+}
+.rl-badge--success { background: rgba(52, 199, 89, 0.18); }
+.rl-badge--warning { background: rgba(255, 159, 10, 0.18); }
+.rl-badge--danger { background: rgba(255, 69, 58, 0.18); }
+
+/* ===== Divider ===== */
+.rl-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.10), transparent);
+  opacity: 1;
+}
+@media (prefers-color-scheme: dark) {
+  .rl-divider { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); }
+}
+
+/* ===== Tabs ===== */
+.rl-tabs {
+  position: relative;
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--rl-border);
+  outline: 1px solid var(--rl-border-outer);
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.45) inset, 0 12px 26px rgba(0,0,0,0.08);
+}
+.rl-tabs__bg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.10));
+  -webkit-backdrop-filter: blur(18px) saturate(1.06);
+  backdrop-filter: blur(18px) saturate(1.06);
+}
+.rl-tabs__tab {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  color: var(--rl-text);
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  opacity: 0.82;
+}
+.rl-tabs__tab:disabled { opacity: 0.45; cursor: not-allowed; }
+.rl-tabs__tabBg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 160ms ease;
+  background:
+    radial-gradient(140% 160% at 20% 0%, rgba(255,255,255,0.60), transparent 62%),
+    linear-gradient(180deg, rgba(10, 132, 255, 0.16), rgba(255,255,255,0.10));
+}
+.rl-tabs__tab.is-active { opacity: 1; }
+.rl-tabs__tab.is-active .rl-tabs__tabBg { opacity: 1; }
+
+/* ===== Modal ===== */
+.rl-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(10px);
+}
+@media (prefers-color-scheme: dark) {
+  .rl-overlay { background: rgba(0, 0, 0, 0.48); }
+}
+.rl-modalWrap {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+}
+.rl-modal {
+  width: min(640px, 100%);
+  padding: 18px;
+}
+.rl-modal__header { margin-bottom: 12px; }
+.rl-modal__title { font-size: 18px; font-weight: 800; margin: 0; }
+.rl-modal__desc { margin: 6px 0 0; opacity: 0.72; }
+.rl-modal__body { margin-top: 12px; }
+
+/* ===== Tooltip ===== */
+.rl-tooltipRef { display: inline-flex; }
+.rl-tooltip { padding: 10px 12px; font-size: 13px; line-height: 1.2; }
+
+/* ===== Toasts ===== */
+.rl-toasts {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  gap: 10px;
+  z-index: 60;
+}
+.rl-toast {
+  width: min(360px, calc(100vw - 32px));
+  padding: 12px;
+  animation: rl-toast-in 180ms ease-out;
+}
+@keyframes rl-toast-in {
+  from { transform: translateY(-6px); opacity: 0.0; }
+  to { transform: translateY(0); opacity: 1.0; }
+}
+
+/* ===== Navbar ===== */
+.rl-navbar {
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+}
+.rl-navbar__side { display: inline-flex; gap: 10px; align-items: center; }
+.rl-navbar__side--right { justify-content: flex-end; }
+.rl-navbar__center { display: inline-flex; justify-content: center; }
+
+/* ===== Motion preferences ===== */
+@media (prefers-reduced-motion: reduce) {
+  .rl-btn,
+  .rl-tabs__tabBg,
+  .rl-toast {
+    transition: none !important;
+    animation: none !important;
+  }
+}
